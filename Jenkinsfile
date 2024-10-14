@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'dockeragent' }
     tools {
         jdk 'JAVA_HOME'
         maven 'M2_HOME'
@@ -9,14 +9,29 @@ pipeline {
         stage('GIT') {
             steps {
                 git branch: 'master', 
-                    url: 'https://github.com/tamim-hmizi/timesheetproject.git',
+                    url: 'https://github.com/tamim-hmizi/timesheetproject.git'
             }
         }
 
         stage('Compile Stage') {
             steps {
-                bat 'mvn clean compile'
+                sh 'mvn clean compile'
             }
+        }
+
+        stage('Deploy Stage') {
+            steps {
+                sh 'mvn clean deploy -DskipTests'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment successful!'
+        }
+        failure {
+            echo 'Deployment failed.'
         }
     }
 }
